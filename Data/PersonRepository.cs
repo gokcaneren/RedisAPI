@@ -24,19 +24,25 @@ namespace RedisAPI.Data
 
             var serialPerson = JsonSerializer.Serialize(personName);
 
-            db.StringSet(personName.Id, serialPerson);
-            db.SetAdd("NameSet", serialPerson);
+            //db.StringSet(personName.Id, serialPerson);
+            //db.SetAdd("NameSet", serialPerson);
+
+            db.HashSet("hashName", new HashEntry[]{
+                new HashEntry(personName.Id, serialPerson)
+            });
         }
 
         public IEnumerable<PersonName?>? GetAllPerson()
         {
             var db = _redis.GetDatabase();
             
-            var completeSet = db.SetMembers("NameSet");
+            //var completeSet = db.SetMembers("NameSet");
 
-            if (completeSet.Length > 0)
+            var completeHash = db.HashGetAll("hashName");
+
+            if (completeHash.Length > 0)
             {
-                var obj = Array.ConvertAll(completeSet, val => JsonSerializer.Deserialize<PersonName>(val)).ToList();
+                var obj = Array.ConvertAll(completeHash, val => JsonSerializer.Deserialize<PersonName>(val.Value)).ToList();
 
                 return obj;
             }
@@ -48,7 +54,9 @@ namespace RedisAPI.Data
         {
             var db = _redis.GetDatabase();
 
-            var person = db.StringGet(id);
+            //var person = db.StringGet(id);
+
+            var person = db.HashGet("hashName", id);
 
             if (!string.IsNullOrEmpty(id))
             {
