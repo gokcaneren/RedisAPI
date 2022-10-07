@@ -25,17 +25,31 @@ namespace RedisAPI.Data
             var serialPerson = JsonSerializer.Serialize(personName);
 
             db.StringSet(personName.Id, serialPerson);
+            db.SetAdd("NameSet", serialPerson);
         }
 
-        public IEnumerable<PersonName> GetAllPerson()
+        public IEnumerable<PersonName?>? GetAllPerson()
         {
-            throw new NotImplementedException();
+            var db = _redis.GetDatabase();
+            
+            var completeSet = db.SetMembers("NameSet");
+
+            if (completeSet.Length > 0)
+            {
+                var obj = Array.ConvertAll(completeSet, val => JsonSerializer.Deserialize<PersonName>(val)).ToList();
+
+                return obj;
+            }
+
+            return null;
         }
 
         public PersonName? GetPersonById(string id)
         {
             var db = _redis.GetDatabase();
+
             var person = db.StringGet(id);
+
             if (!string.IsNullOrEmpty(id))
             {
                 return JsonSerializer.Deserialize<PersonName>(person);

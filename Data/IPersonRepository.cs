@@ -6,6 +6,6 @@ namespace RedisAPI.Data
     {
         void CreatePerson(PersonName personName);
         PersonName? GetPersonById(string id);
-        IEnumerable<PersonName> GetAllPerson();
+        IEnumerable<PersonName?>? GetAllPerson();
     }
 }
