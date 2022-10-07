@@ -27,6 +27,12 @@ namespace RedisAPI.Controllers
             return NotFound();
         }
 
+        [HttpGet]
+        public ActionResult<IEnumerable<PersonName>> GetAllNames()
+        {
+            return Ok(_repository.GetAllPerson());
+        }
+
         [HttpPost]
         public ActionResult<PersonName> CreatePerson(PersonName personName)
         {
